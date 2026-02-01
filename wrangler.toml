@@ -5,3 +5,6 @@ pages_build_output_dir = "."
 [[kv_namespaces]]
 binding = "BABY_NAMES_KV"
 id = "7919bb3140f94c6e95171c58ccf60f49"
+
+# Required secrets (set via `wrangler secret put ANTHROPIC_API_KEY`):
+# - ANTHROPIC_API_KEY: Your Anthropic API key for LLM name generation
