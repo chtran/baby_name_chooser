@@ -1,6 +1,7 @@
 name = "baby-name-chooser"
 compatibility_date = "2024-01-01"
+pages_build_output_dir = "."
 
 [[kv_namespaces]]
 binding = "BABY_NAMES_KV"
-id = "<YOUR_KV_NAMESPACE_ID>"
+id = "7919bb3140f94c6e95171c58ccf60f49"
