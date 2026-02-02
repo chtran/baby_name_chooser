@@ -49,7 +49,7 @@ Return only a JSON array of first names, like: ["Name1", "Name2", "Name3"]`;
                 'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: 'claude-opus-4-5-20250514',
+                model: 'claude-sonnet-4-5-20250929',
                 max_tokens: 1024,
                 messages: [
                     {
@@ -60,6 +60,9 @@ Return only a JSON array of first names, like: ["Name1", "Name2", "Name3"]`;
                 system: systemPrompt
             })
         });
+        console.log('systemPrompt', systemPrompt);
+        console.log('userPrompt', userPrompt);
+        console.log('response', response);
 
         if (!response.ok) {
             const errorText = await response.text();
