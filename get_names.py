@@ -2,7 +2,7 @@ import argparse
 import csv
 import os
 
-def generate_names_csv(gender, target_years):
+def generate_names_csv(gender, target_years, num_names=1000):
     names_folder = os.path.expanduser("~/Downloads/names")
 
     gender_label = "girl" if gender == "F" else "boy"
@@ -36,25 +36,27 @@ def generate_names_csv(gender, target_years):
     # Sort by count descending
     sorted_names = sorted(name_counts.items(), key=lambda x: x[1], reverse=True)
 
-    # Take top 1000
-    top_1000 = sorted_names[:1000]
+    # Take top N
+    top_names = sorted_names[:num_names]
 
     # Write to CSV
-    output_file = f'top_1000_{gender_label}_names.csv'
+    output_file = f'top_{num_names}_{gender_label}_names.csv'
     with open(output_file, 'w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['name'])
-        for name, count in top_1000:
+        for name, count in top_names:
             writer.writerow([name])
 
-    print(f"Success! '{output_file}' has been created with the top 1000 {gender_label} names.")
+    print(f"Success! '{output_file}' has been created with the top {num_names} {gender_label} names.")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate top 1000 baby names from SSA data")
+    parser = argparse.ArgumentParser(description="Generate top baby names from SSA data")
     parser.add_argument("-g", "--gender", choices=["F", "M"], required=True,
                         help="Gender: F for female, M for male")
     parser.add_argument("-y", "--years", type=int, nargs="+", default=[2024],
                         help="Target years (default: 2024)")
+    parser.add_argument("-n", "--num_names", type=int, default=1000,
+                        help="Number of top names to generate (default: 1000)")
 
     args = parser.parse_args()
-    generate_names_csv(args.gender, args.years)
+    generate_names_csv(args.gender, args.years, args.num_names)

@@ -58,6 +58,9 @@ export async function onRequestPut(context) {
         const data = {
             names,
             comparisonCount: comparisonCount || 0,
+            familyName: body.familyName || '',
+            selectedLanguage: body.selectedLanguage || null,
+            selectedGender: body.selectedGender || null,
             lastUpdated: new Date().toISOString()
         };
 

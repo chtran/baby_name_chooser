@@ -832,7 +832,8 @@
                         names: names,
                         comparisonCount: comparisonCount,
                         familyName: familyName,
-                        selectedLanguage: selectedLanguage
+                        selectedLanguage: selectedLanguage,
+                        selectedGender: selectedGender
                     })
                 });
                 const result = await response.json();
@@ -895,6 +896,7 @@
                 comparisonCount = result.data.comparisonCount || 0;
                 familyName = result.data.familyName || '';
                 selectedLanguage = result.data.selectedLanguage || null;
+                selectedGender = result.data.selectedGender || null;
                 startComparing();
             } else {
                 document.getElementById('setup-section').style.display = 'block';
@@ -936,6 +938,7 @@
                 comparisonCount = result.data.comparisonCount || 0;
                 familyName = result.data.familyName || '';
                 selectedLanguage = result.data.selectedLanguage || null;
+                selectedGender = result.data.selectedGender || null;
                 startComparing();
             }
         }
