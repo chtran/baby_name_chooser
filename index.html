@@ -223,6 +223,30 @@
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
         }
 
+        .name-card {
+            position: relative;
+        }
+
+        .name-card .remove-name-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: none;
+            border: none;
+            color: #ccc;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .name-card .remove-name-btn:hover {
+            color: #dc3545;
+            background: #fee;
+        }
+
         .name-card h2 {
             font-size: 2rem;
             color: #333;
@@ -685,6 +709,7 @@
 
                 <div class="comparison-container">
                     <div class="name-card" onclick="selectName(0)">
+                        <button class="remove-name-btn" onclick="event.stopPropagation(); removeFromRanking(0)" title="Remove from ranking">&times;</button>
                         <h2 id="name-1">Name 1</h2>
                         <div class="elo" id="elo-1">ELO: 1500</div>
                     </div>
@@ -692,6 +717,7 @@
                     <div class="or-divider">OR</div>
 
                     <div class="name-card" onclick="selectName(1)">
+                        <button class="remove-name-btn" onclick="event.stopPropagation(); removeFromRanking(1)" title="Remove from ranking">&times;</button>
                         <h2 id="name-2">Name 2</h2>
                         <div class="elo" id="elo-2">ELO: 1500</div>
                     </div>
@@ -804,7 +830,9 @@
                     body: JSON.stringify({
                         user_id: currentUser,
                         names: names,
-                        comparisonCount: comparisonCount
+                        comparisonCount: comparisonCount,
+                        familyName: familyName,
+                        selectedLanguage: selectedLanguage
                     })
                 });
                 const result = await response.json();
@@ -865,6 +893,8 @@
             if (result.exists && result.data) {
                 names = result.data.names;
                 comparisonCount = result.data.comparisonCount || 0;
+                familyName = result.data.familyName || '';
+                selectedLanguage = result.data.selectedLanguage || null;
                 startComparing();
             } else {
                 document.getElementById('setup-section').style.display = 'block';
@@ -904,6 +934,8 @@
             if (result.exists && result.data) {
                 names = result.data.names;
                 comparisonCount = result.data.comparisonCount || 0;
+                familyName = result.data.familyName || '';
+                selectedLanguage = result.data.selectedLanguage || null;
                 startComparing();
             }
         }
@@ -1397,6 +1429,25 @@
             getNextPair();
         }
 
+        function removeFromRanking(pairIndex) {
+            const nameIdx = currentPair[pairIndex];
+            const name = names[nameIdx];
+
+            if (confirm(`Remove "${name.name}" from the ranking?`)) {
+                names.splice(nameIdx, 1);
+                updateStats();
+                renderRankings();
+                debouncedSave();
+
+                if (names.length < 2) {
+                    alert('You need at least 2 names to continue comparing.');
+                    showSetup();
+                } else {
+                    getNextPair();
+                }
+            }
+        }
+
         function updateStats() {
             document.getElementById('comparison-count').textContent = comparisonCount;
             document.getElementById('total-names').textContent = names.length;
@@ -1462,6 +1513,8 @@
                 userId: currentUser,
                 names: names,
                 comparisonCount: comparisonCount,
+                familyName: familyName,
+                selectedLanguage: selectedLanguage,
                 exportedAt: new Date().toISOString()
             };
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -1484,6 +1537,8 @@
                     if (data.names && Array.isArray(data.names)) {
                         names = data.names;
                         comparisonCount = data.comparisonCount || 0;
+                        familyName = data.familyName || '';
+                        selectedLanguage = data.selectedLanguage || null;
                         await saveUserData();
                         alert(`Imported ${names.length} names successfully!`);
                         renderRankings();
@@ -1514,7 +1569,9 @@
                 navigator.sendBeacon(`${API_BASE}/api/data`, JSON.stringify({
                     user_id: currentUser,
                     names: names,
-                    comparisonCount: comparisonCount
+                    comparisonCount: comparisonCount,
+                    familyName: familyName,
+                    selectedLanguage: selectedLanguage
                 }));
             }
         });

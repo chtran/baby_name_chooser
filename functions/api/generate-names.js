@@ -27,7 +27,7 @@ export async function onRequestPost(context) {
             ? 'Vietnamese names (using Vietnamese naming conventions)'
             : 'English names';
 
-        const systemPrompt = `You are a baby name expert. Generate a list of unique, beautiful baby names based on the parent's vision for their child. Return ONLY a JSON array of name strings, nothing else. Generate 30 names.`;
+        const systemPrompt = `You are a baby name expert. Generate a list of 30 unique, beautiful baby names based on the parent's vision for their child. Return ONLY a JSON array of name strings, nothing else.`;
 
         const familyNameContext = familyName
             ? `The family name is "${familyName}", so generate first names that sound good with this family name.`
@@ -50,7 +50,7 @@ Return only a JSON array of first names, like: ["Name1", "Name2", "Name3"]`;
             },
             body: JSON.stringify({
                 model: 'claude-sonnet-4-5-20250929',
-                max_tokens: 1024,
+                max_tokens: 8092,
                 messages: [
                     {
                         role: 'user',
