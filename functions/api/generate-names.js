@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
 
     try {
         const body = await request.json();
-        const { gender, language, prompt } = body;
+        const { gender, language, prompt, familyName } = body;
 
         if (!gender || !prompt) {
             return new Response(JSON.stringify({ error: 'gender and prompt are required' }), {
@@ -27,13 +27,19 @@ export async function onRequestPost(context) {
             ? 'Vietnamese names (using Vietnamese naming conventions)'
             : 'English names';
 
-        const systemPrompt = `You are a baby name expert. Generate a list of unique, beautiful baby names based on the parent's vision for their child. Return ONLY a JSON array of name strings, nothing else. Generate 15-20 names.`;
+        const systemPrompt = `You are a baby name expert. Generate a list of unique, beautiful baby names based on the parent's vision for their child. Return ONLY a JSON array of name strings, nothing else. Generate 30 names.`;
+
+        const familyNameContext = familyName
+            ? `The family name is "${familyName}", so generate first names that sound good with this family name.`
+            : '';
 
         const userPrompt = `Generate ${languageContext} for a ${genderWord} based on this description of what the parents imagine their child to be like:
 
 "${prompt}"
 
-Return only a JSON array of names, like: ["Name1", "Name2", "Name3"]`;
+${familyNameContext}
+
+Return only a JSON array of first names, like: ["Name1", "Name2", "Name3"]`;
 
         const response = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
@@ -43,7 +49,7 @@ Return only a JSON array of names, like: ["Name1", "Name2", "Name3"]`;
                 'anthropic-version': '2023-06-01'
             },
             body: JSON.stringify({
-                model: 'claude-sonnet-4-20250514',
+                model: 'claude-opus-4-5-20250514',
                 max_tokens: 1024,
                 messages: [
                     {
