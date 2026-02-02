@@ -1289,24 +1289,36 @@
                 return;
             }
 
-            // Weighted random selection with priority rules:
-            // 1. Prioritize AI generated (llm) or custom (manual, uploaded) names
-            // 2. Deprioritize names that have lost 2+ matches
+            // Adaptive multi-factor sampling strategy:
+            // - Early: prioritize custom > AI > popular, high exploration
+            // - Late: prioritize high ELO names, low but present exploration
+            const avgElo = names.reduce((s, n) => s + n.elo, 0) / names.length;
+
             const weights = names.map(n => {
-                let weight = Math.max(1, 10 - n.matches);
+                // Factor 1: Source priority (decays from 5x/3x/1x toward 1x over ~200 comparisons)
+                const sourceDecay = Math.max(0, 1 - comparisonCount / 200);
+                const sourceWeight = {
+                    'uploaded': 1 + 4 * sourceDecay,  // 5x → 1x
+                    'manual': 1 + 4 * sourceDecay,    // 5x → 1x
+                    'llm': 1 + 2 * sourceDecay,       // 3x → 1x
+                    'preset': 1                        // always 1x
+                }[n.source] || 1;
 
-                // Prioritize AI generated or custom names (3x boost)
-                if (n.source === 'llm' || n.source === 'manual' || n.source === 'uploaded') {
-                    weight *= 3;
-                }
+                // Factor 2: ELO influence (ramps up over ~150 comparisons)
+                const eloInfluence = Math.min(1, comparisonCount / 150);
+                const eloFactor = 1 + eloInfluence * Math.tanh((n.elo - avgElo) / 150);
+                // tanh keeps it bounded: ~0.3x for low ELO to ~1.7x for high ELO
 
-                // Deprioritize names that have lost 2+ matches (reduce to 25%)
-                if (n.losses >= 2) {
-                    weight *= 0.25;
-                }
+                // Factor 3: Exploration bonus (ensures underexposed names appear)
+                const explorationBonus = 1 + 2 / Math.sqrt(1 + n.matches);
+                // 0 matches → 3x, 1 match → 2.4x, 4 matches → 1.9x, 9 matches → 1.6x
 
-                return Math.max(0.1, weight); // Ensure minimum weight
+                // Factor 4: Never-seen bonus (extra boost for names with zero matches)
+                const freshBonus = n.matches === 0 ? 1.5 : 1;
+
+                return Math.max(0.1, sourceWeight * eloFactor * explorationBonus * freshBonus);
             });
+
             const totalWeight = weights.reduce((a, b) => a + b, 0);
 
             function weightedRandom() {
