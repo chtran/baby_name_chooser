@@ -617,6 +617,15 @@
                 <input type="text" id="family-name-input" placeholder="Family name..." style="padding: 12px 20px; font-size: 1.1rem; border: 2px solid #ddd; border-radius: 8px; width: 100%; max-width: 300px;">
             </div>
 
+            <!-- Include Popular Names Checkbox (hidden until language selected) -->
+            <div id="popular-names-section" style="display: none; text-align: center; margin-bottom: 20px;">
+                <label style="display: inline-flex; align-items: center; gap: 10px; cursor: pointer; padding: 12px 20px; background: #f8f9fa; border-radius: 8px; border: 2px solid #ddd;">
+                    <input type="checkbox" id="include-popular-names" checked style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="color: #333; font-size: 1rem;">Include popular names</span>
+                    <span style="color: #888; font-size: 0.85rem;">(1000 most common)</span>
+                </label>
+            </div>
+
             <!-- LLM Prompt Section (hidden until gender and language selected) -->
             <div id="llm-prompt-section" class="llm-prompt-section" style="display: none; text-align: center;">
                 <label id="llm-prompt-label">What do you imagine your child to be like?</label>
@@ -1014,6 +1023,7 @@
                 document.getElementById('llm-prompt-label').textContent =
                     `What do you imagine your ${genderWord} to be like?`;
                 document.getElementById('family-name-section').style.display = 'block';
+                document.getElementById('popular-names-section').style.display = 'block';
                 document.getElementById('llm-prompt-section').style.display = 'block';
                 document.getElementById('continue-section').style.display = 'block';
             }
@@ -1107,6 +1117,9 @@
 
             // Store as uploaded names
             uploadedNames = parsedNames;
+
+            // Auto-uncheck popular names since user has custom names
+            document.getElementById('include-popular-names').checked = false;
 
             // Show upload status
             const statusEl = document.getElementById('upload-status');
